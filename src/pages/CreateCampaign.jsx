@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { ethers } from "ethers";
 
 import { useStateContext } from "../context";
+import { checkIfImage } from "../utils";
 import { money } from "../assets";
 import { CustomButton, FormField, Loader } from "../components";
-import { checkIfImage } from "../utils";
 
 const CreateCampaign = () => {
   const navigate = useNavigate();
@@ -16,8 +16,10 @@ const CreateCampaign = () => {
     title: "",
     description: "",
     target: "",
+    category: "",
     deadline: "",
     image: "",
+    nft: "",
   });
 
   const handleFormFieldChange = (fieldName, e) => {
@@ -95,11 +97,21 @@ const CreateCampaign = () => {
         <div className="flex flex-wrap gap-[40px]">
           <FormField
             labelName="Goal *"
-            placeholder="ETH 0.50"
+            placeholder="MATIC 500"
             inputType="text"
             value={form.target}
             handleChange={(e) => handleFormFieldChange("target", e)}
           />
+          <FormField
+            labelName="Category *"
+            placeholder="Education"
+            inputType="text"
+            value={form.category}
+            handleChange={(e) => handleFormFieldChange("category", e)}
+          />
+        </div>
+
+        <div className="flex flex-wrap gap-[40px]">
           <FormField
             labelName="End Date *"
             placeholder="End Date"
@@ -110,11 +122,19 @@ const CreateCampaign = () => {
         </div>
 
         <FormField
-          labelName="Campaign image *"
-          placeholder="Place image URL of your campaign"
-          inputType="url"
+          labelName="Campaign Image *"
+          placeholder="Image URL for your Campaign"
+          inputType="string"
           value={form.image}
           handleChange={(e) => handleFormFieldChange("image", e)}
+        />
+
+        <FormField
+          labelName="Reward NFT *"
+          placeholder="NFT Image URL Reward for your Campaign"
+          inputType="string"
+          value={form.nft}
+          handleChange={(e) => handleFormFieldChange("nft", e)}
         />
 
         <div className="flex justify-center items-center mt-[40px]">
