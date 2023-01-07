@@ -12,7 +12,7 @@ const StateContext = createContext();
 
 export const StateContextProvider = ({ children }) => {
   const { contract } = useContract(
-    "0xcfD89f7C344d225fF477e3D5EF859b8826B6FA83"
+    "0xDE684a4611205E7E15cEC5734Cb79aa8fa1ef4B1"
   );
   const { mutateAsync: createCampaign } = useContractWrite(
     contract,
@@ -25,12 +25,13 @@ export const StateContextProvider = ({ children }) => {
   const publishCampaign = async (form) => {
     try {
       const data = await createCampaign([
-        address, // owner
-        form.title, // title
-        form.description, // description
+        address,
         form.target,
-        new Date(form.deadline).getTime(), // deadline,
+        new Date(form.deadline).getTime(),
+        form.title,
+        form.description,
         form.image,
+        form.nft,
       ]);
 
       console.log("contract call success", data);
@@ -46,8 +47,9 @@ export const StateContextProvider = ({ children }) => {
       owner: campaign.owner,
       title: campaign.title,
       description: campaign.description,
+      category: campaign.category,
       target: ethers.utils.formatEther(campaign.target.toString()),
-      deadline: campaign.deadline.toNumber(),
+      deadline: campaign.endAt.toNumber(),
       amountCollected: ethers.utils.formatEther(
         campaign.amountCollected.toString()
       ),
@@ -68,12 +70,17 @@ export const StateContextProvider = ({ children }) => {
     return filteredCampaigns;
   };
 
-  const donate = async (pId, amount) => {
-    const data = await contract.call("donateToCampaign", pId, {
+  const donate = async (pId, _uri, amount) => {
+    const data = await contract.call("donateToCampaign", pId, _uri, {
       value: ethers.utils.parseEther(amount),
     });
 
     return data;
+  };
+
+  const getCampaign = async (pId) => {
+    const campaign = await contract.call("campaigns", pId);
+    return campaign;
   };
 
   const getDonations = async (pId) => {
@@ -103,6 +110,7 @@ export const StateContextProvider = ({ children }) => {
         getUserCampaigns,
         donate,
         getDonations,
+        getCampaign,
       }}
     >
       {children}
