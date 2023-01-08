@@ -20,7 +20,7 @@ const CampaignDetails = () => {
   const [amount, setAmount] = useState("");
   const [metadata, setMetadata] = useState({});
   const [donators, setDonators] = useState([]);
-  const avatar = `https://avatars.dicebear.com/api/micah/${metadata.owner}.svg?size=32`;
+  const avatar = `https://avatars.dicebear.com/api/micah/${metadata.ownerAddress}.svg?size=32`;
 
   const remainingDays = daysLeft(state.deadline);
 
@@ -168,7 +168,7 @@ const CampaignDetails = () => {
           </div>
         </div>
 
-        {metadata.owner === address ? (
+        {metadata.ownerAddress === address ? (
           <div className="flex-1">
             <h4 className="font-epilogue font-semibold text-[18px] text-white uppercase">
               Withdraw
