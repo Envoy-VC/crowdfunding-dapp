@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { ethers } from "ethers";
 
 import { useStateContext } from "../context";
-import { checkIfImage } from "../utils";
 import { money } from "../assets";
 import { CustomButton, FormField, Loader } from "../components";
 
@@ -28,21 +27,13 @@ const CreateCampaign = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    checkIfImage(form.image, async (exists) => {
-      if (exists) {
-        setIsLoading(true);
-        await createCampaign({
-          ...form,
-          target: ethers.utils.parseUnits(form.target, 18),
-        });
-        setIsLoading(false);
-        navigate("/");
-      } else {
-        alert("Provide valid image URL");
-        setForm({ ...form, image: "" });
-      }
+    setIsLoading(true);
+    await createCampaign({
+      ...form,
+      target: ethers.utils.parseUnits(form.target, 18),
     });
+    setIsLoading(false);
+    navigate("/");
   };
 
   return (
@@ -110,7 +101,6 @@ const CreateCampaign = () => {
             handleChange={(e) => handleFormFieldChange("category", e)}
           />
         </div>
-
         <div className="flex flex-wrap gap-[40px]">
           <FormField
             labelName="End Date *"

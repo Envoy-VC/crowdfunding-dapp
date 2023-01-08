@@ -1,46 +1,25 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useStorageUpload } from "@thirdweb-dev/react";
 
 import { useStateContext } from "../context";
 import { CountBox, CustomButton, Loader } from "../components";
 import { calculateBarPercentage, daysLeft } from "../utils";
-import { thirdweb } from "../assets";
 
 const CampaignDetails = () => {
-  const { mutateAsync: upload } = useStorageUpload();
   const { state } = useLocation();
   const navigate = useNavigate();
-  const { donate, getDonations, contract, address, getCampaign } =
-    useStateContext();
+  const { donate, getDonations, contract, address } = useStateContext();
 
   const [isLoading, setIsLoading] = useState(false);
   const [amount, setAmount] = useState("");
   const [donators, setDonators] = useState([]);
+  const avatar = `https://avatars.dicebear.com/api/micah/${address}.svg?scale=200`;
 
   const remainingDays = daysLeft(state.deadline);
 
   const fetchDonators = async () => {
     const data = await getDonations(state.pId);
-
     setDonators(data);
-  };
-
-  const generateNftUri = async (amount) => {
-    const campaign = await getCampaign(state.pId);
-    const metadata = {
-      name: campaign.title,
-      description: campaign.description,
-      image: campaign.nft,
-      attributes: [
-        {
-          trait_type: "Donation",
-          value: amount,
-        },
-      ],
-    };
-    const uri = await upload({ data: [metadata] });
-    return uri[0];
   };
 
   useEffect(() => {
@@ -49,8 +28,7 @@ const CampaignDetails = () => {
 
   const handleDonate = async () => {
     setIsLoading(true);
-    const uri = await generateNftUri(amount);
-    await donate(state.pId, uri, amount);
+    await donate(state.pId, amount);
     navigate("/");
     setIsLoading(false);
   };
@@ -100,7 +78,7 @@ const CampaignDetails = () => {
             <div className="mt-[20px] flex flex-row items-center flex-wrap gap-[14px]">
               <div className="w-[52px] h-[52px] flex items-center justify-center rounded-full bg-[#2c2f32] cursor-pointer">
                 <img
-                  src={thirdweb}
+                  src={avatar}
                   alt="user"
                   className="w-[60%] h-[60%] object-contain"
                 />
