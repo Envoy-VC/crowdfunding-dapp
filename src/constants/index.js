@@ -5,6 +5,7 @@ import {
   payment,
   profile,
   withdraw,
+  faq,
 } from "../assets";
 
 export const navlinks = [
@@ -34,6 +35,11 @@ export const navlinks = [
     name: "Profile",
     imgUrl: profile,
     link: "/profile",
+  },
+  {
+    name: "FAQs",
+    imgUrl: faq,
+    link: "/faq",
   },
   {
     name: "Logout",
