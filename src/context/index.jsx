@@ -76,6 +76,7 @@ export const StateContextProvider = ({ children }) => {
       const _metadata = await storage.downloadJSON(campaign.metadata);
       parsedCampaing.push({
         owner: _metadata.owner,
+        ownerAddress: campaign.owner,
         title: _metadata.title,
         description: _metadata.description,
         category: _metadata.category,
@@ -96,18 +97,22 @@ export const StateContextProvider = ({ children }) => {
     const allCampaigns = await getCampaigns();
 
     const filteredCampaigns = allCampaigns.filter(
-      (campaign) => campaign.owner === address
+      (campaign) => campaign.ownerAddress === address
     );
 
     return filteredCampaigns;
   };
 
   const donate = async (pId, amount) => {
-    console.log(pId, amount);
     const _uri = await generateNftUri(amount, pId);
     const data = await contract.call("donateToCampaign", pId, _uri, {
       value: ethers.utils.parseEther(amount),
     });
+    return data;
+  };
+
+  const withdraw = async (pId) => {
+    const data = await contract.call("withdraw", pId);
     return data;
   };
 
@@ -117,6 +122,7 @@ export const StateContextProvider = ({ children }) => {
     const _metadata = await storage.downloadJSON(campaign.metadata);
     console.log(_metadata);
     const parsedCampaign = {
+      ownerAddress: campaign.owner,
       owner: _metadata.owner,
       title: _metadata.title,
       description: _metadata.description,
@@ -161,6 +167,7 @@ export const StateContextProvider = ({ children }) => {
         getDonations,
         getCampaign,
         generateNftUri,
+        withdraw,
       }}
     >
       {children}

@@ -1,12 +1,14 @@
 import React from "react";
 
-import { tagType, thirdweb } from "../assets";
+import { tagType } from "../assets";
 import { daysLeft } from "../utils";
 
 const FundCard = ({
   owner,
+  ownerAddress,
   title,
   description,
+  category,
   target,
   deadline,
   amountCollected,
@@ -14,6 +16,7 @@ const FundCard = ({
   handleClick,
 }) => {
   const remainingDays = daysLeft(deadline);
+  const avatar = `https://avatars.dicebear.com/api/micah/${ownerAddress}.svg?scale=200`;
 
   return (
     <div
@@ -34,7 +37,7 @@ const FundCard = ({
             className="w-[17px] h-[17px] object-contain"
           />
           <p className="ml-[12px] mt-[2px] font-epilogue font-medium text-[12px] text-[#808191]">
-            Education
+            {category}
           </p>
         </div>
 
@@ -69,7 +72,7 @@ const FundCard = ({
         <div className="flex items-center mt-[20px] gap-[12px]">
           <div className="w-[30px] h-[30px] rounded-full flex justify-center items-center bg-[#13131a]">
             <img
-              src={thirdweb}
+              src={avatar}
               alt="user"
               className="w-1/2 h-1/2 object-contain"
             />
