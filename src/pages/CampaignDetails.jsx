@@ -20,7 +20,7 @@ const CampaignDetails = () => {
   const [amount, setAmount] = useState("");
   const [metadata, setMetadata] = useState({});
   const [donators, setDonators] = useState([]);
-  const avatar = `https://avatars.dicebear.com/api/micah/${metadata.owner}.svg?scale=200`;
+  const avatar = `https://avatars.dicebear.com/api/micah/${metadata.owner}.svg?size=32`;
 
   const remainingDays = daysLeft(state.deadline);
 

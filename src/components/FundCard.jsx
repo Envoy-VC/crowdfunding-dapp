@@ -10,13 +10,14 @@ const FundCard = ({
   description,
   category,
   target,
+  startAt,
   deadline,
   amountCollected,
   image,
   handleClick,
 }) => {
   const remainingDays = daysLeft(deadline);
-  const avatar = `https://avatars.dicebear.com/api/micah/${ownerAddress}.svg?scale=200`;
+  const avatar = `https://avatars.dicebear.com/api/micah/${ownerAddress}.svg?size=32`;
 
   return (
     <div
