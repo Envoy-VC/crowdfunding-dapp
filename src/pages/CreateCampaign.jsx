@@ -5,6 +5,8 @@ import { ethers } from "ethers";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+import { serializeError } from "eth-rpc-errors";
+
 import { useStateContext } from "../context";
 import { money } from "../assets";
 import { CustomButton, FormField, Loader } from "../components";
@@ -36,22 +38,37 @@ const CreateCampaign = () => {
     });
   };
 
+  const successNotification = (message) => {
+    toast.success(message, {
+      position: toast.POSITION.BOTTOM_RIGHT,
+      autoClose: 5000,
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (address === undefined) {
       errorNotification("Please connect your Metamask Wallet");
     } else if (form.target == 0) {
-      errorNotification("Target cannot be 0");
-    } else if (new Date(form.deadline).getTime() <= Date.now().toString()) {
-      errorNotification("End Date Should be ahead of today's date");
+      errorNotification("Target amount cannot be 0");
     } else {
-      setIsLoading(true);
-      await createCampaign({
-        ...form,
-        target: ethers.utils.parseUnits(form.target, 18),
-      });
-      setIsLoading(false);
-      navigate("/");
+      try {
+        setIsLoading(true);
+        await createCampaign({
+          ...form,
+          target: ethers.utils.parseUnits(form.target, 18),
+        });
+        setIsLoading(false);
+        navigate("/");
+        successNotification("Transaction Successful");
+      } catch (error) {
+        setIsLoading(false);
+        const serializedError = serializeError(error);
+        const jsonError = { serializedError };
+        const lines = jsonError.serializedError.message.split("\n");
+        const e = JSON.parse(lines.at(-1)).reason;
+        errorNotification(e);
+      }
     }
   };
 

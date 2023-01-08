@@ -45,8 +45,6 @@ const CampaignDetails = () => {
   const handleDonate = async () => {
     if (address === undefined) {
       errorNotification("Please connect your Metamask Wallet");
-    } else if (amount + metadata.amountCollected > metadata.target) {
-      errorNotification("Amount Exceeds the required target amount");
     } else {
       try {
         setIsLoading(true);
@@ -125,7 +123,7 @@ const CampaignDetails = () => {
                   {state.owner}
                 </h4>
                 <p className="mt-[4px] font-epilogue font-normal text-[12px] text-[#808191]">
-                  {metadata.owner}
+                  {metadata.ownerAddress}
                 </p>
               </div>
             </div>

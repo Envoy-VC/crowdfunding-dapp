@@ -14,7 +14,7 @@ const StateContext = createContext();
 
 export const StateContextProvider = ({ children }) => {
   const { contract } = useContract(
-    "0x1031dD9bC36c7c90030D8851C9fc236474C3afa7"
+    "0xb7A1C0949Fa55EC7e92c6Dbf7F18B1d61237aa74"
   );
   const { mutateAsync: createCampaign } = useContractWrite(
     contract,
@@ -37,11 +37,14 @@ export const StateContextProvider = ({ children }) => {
         nftImage: form.nft,
       };
       const uri = await upload({ data: [metadata] });
+      const startAt = new Date(form.startAt).getTime();
+      console.log(startAt);
+      const endAt = new Date(form.deadline).getTime();
       const data = await createCampaign([
         address,
         form.target,
-        new Date(form.startAt).getTime(),
-        new Date(form.deadline).getTime(),
+        Math.floor(startAt / 1000),
+        Math.floor(endAt / 1000),
         uri[0],
       ]);
 
@@ -74,6 +77,9 @@ export const StateContextProvider = ({ children }) => {
     const parsedCampaing = [];
     for (let i = 0; i < campaigns.length; i++) {
       const campaign = campaigns[i];
+      if (campaign.owner === "0x0000000000000000000000000000000000000000") {
+        continue;
+      }
       const _metadata = await storage.downloadJSON(campaign.metadata);
       parsedCampaing.push({
         owner: _metadata.owner,
