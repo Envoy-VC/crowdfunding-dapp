@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ethers } from "ethers";
 
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import { useStateContext } from "../context";
 import { money } from "../assets";
 import { CustomButton, FormField, Loader } from "../components";
@@ -9,13 +12,14 @@ import { CustomButton, FormField, Loader } from "../components";
 const CreateCampaign = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const { createCampaign } = useStateContext();
+  const { createCampaign, address } = useStateContext();
   const [form, setForm] = useState({
     name: "",
     title: "",
     description: "",
     target: "",
     category: "",
+    startAt: "",
     deadline: "",
     image: "",
     nft: "",
@@ -25,15 +29,30 @@ const CreateCampaign = () => {
     setForm({ ...form, [fieldName]: e.target.value });
   };
 
+  const errorNotification = (message) => {
+    toast.error(message, {
+      position: toast.POSITION.BOTTOM_RIGHT,
+      autoClose: 5000,
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
-    await createCampaign({
-      ...form,
-      target: ethers.utils.parseUnits(form.target, 18),
-    });
-    setIsLoading(false);
-    navigate("/");
+    if (address === undefined) {
+      errorNotification("Please connect your Metamask Wallet");
+    } else if (form.target == 0) {
+      errorNotification("Target cannot be 0");
+    } else if (new Date(form.deadline).getTime() <= Date.now().toString()) {
+      errorNotification("End Date Should be ahead of today's date");
+    } else {
+      setIsLoading(true);
+      await createCampaign({
+        ...form,
+        target: ethers.utils.parseUnits(form.target, 18),
+      });
+      setIsLoading(false);
+      navigate("/");
+    }
   };
 
   return (
@@ -103,9 +122,18 @@ const CreateCampaign = () => {
         </div>
         <div className="flex flex-wrap gap-[40px]">
           <FormField
+            labelName="Start Date *"
+            placeholder="Start Date"
+            inputType="datetime-local"
+            step={60}
+            value={form.startAt}
+            handleChange={(e) => handleFormFieldChange("deadline", e)}
+          />
+          <FormField
             labelName="End Date *"
             placeholder="End Date"
-            inputType="date"
+            inputType="datetime-local"
+            step={60}
             value={form.deadline}
             handleChange={(e) => handleFormFieldChange("deadline", e)}
           />
@@ -135,6 +163,7 @@ const CreateCampaign = () => {
           />
         </div>
       </form>
+      <ToastContainer />
     </div>
   );
 };

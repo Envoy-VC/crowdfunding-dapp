@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+import { serializeError } from "eth-rpc-errors";
+
 import { useStateContext } from "../context";
 import { CountBox, CustomButton, Loader } from "../components";
 import { calculateBarPercentage, daysLeft } from "../utils";
@@ -13,16 +18,23 @@ const CampaignDetails = () => {
 
   const [isLoading, setIsLoading] = useState(false);
   const [amount, setAmount] = useState("");
-  const [owner, setOwner] = useState("");
+  const [metadata, setMetadata] = useState({});
   const [donators, setDonators] = useState([]);
-  const avatar = `https://avatars.dicebear.com/api/micah/${owner}.svg?scale=200`;
+  const avatar = `https://avatars.dicebear.com/api/micah/${metadata.owner}.svg?scale=200`;
 
   const remainingDays = daysLeft(state.deadline);
+
+  const errorNotification = (message) => {
+    toast.error(message, {
+      position: toast.POSITION.BOTTOM_RIGHT,
+      autoClose: 5000,
+    });
+  };
 
   const fetchDonators = async () => {
     const data = await getDonations(state.pId);
     const metadata = await getCampaign(state.pId);
-    setOwner(metadata.ownerAddress);
+    setMetadata(metadata);
     setDonators(data);
   };
 
@@ -31,10 +43,25 @@ const CampaignDetails = () => {
   }, [contract, address]);
 
   const handleDonate = async () => {
-    setIsLoading(true);
-    await donate(state.pId, amount);
-    navigate("/");
-    setIsLoading(false);
+    if (address === undefined) {
+      errorNotification("Please connect your Metamask Wallet");
+    } else if (amount + metadata.amountCollected > metadata.target) {
+      errorNotification("Amount Exceeds the required target amount");
+    } else {
+      try {
+        setIsLoading(true);
+        await donate(state.pId, amount);
+        navigate("/");
+        setIsLoading(false);
+      } catch (error) {
+        setIsLoading(false);
+        const serializedError = serializeError(error);
+        const jsonError = { serializedError };
+        const lines = jsonError.serializedError.message.split("\n");
+        const e = JSON.parse(lines.at(-1)).reason;
+        errorNotification(e);
+      }
+    }
   };
   const handleWithdraw = async () => {
     setIsLoading(true);
@@ -98,7 +125,7 @@ const CampaignDetails = () => {
                   {state.owner}
                 </h4>
                 <p className="mt-[4px] font-epilogue font-normal text-[12px] text-[#808191]">
-                  {owner}
+                  {metadata.owner}
                 </p>
               </div>
             </div>
@@ -141,7 +168,7 @@ const CampaignDetails = () => {
           </div>
         </div>
 
-        {owner === address ? (
+        {metadata.owner === address ? (
           <div className="flex-1">
             <h4 className="font-epilogue font-semibold text-[18px] text-white uppercase">
               Withdraw
@@ -221,6 +248,7 @@ const CampaignDetails = () => {
           </div>
         )}
       </div>
+      <ToastContainer />
     </div>
   );
 };
