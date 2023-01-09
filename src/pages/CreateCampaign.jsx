@@ -14,7 +14,7 @@ import { CustomButton, FormField, Loader } from "../components";
 const CreateCampaign = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const { createCampaign, address } = useStateContext();
+  const { createCampaign, address, checkChain } = useStateContext();
   const [form, setForm] = useState({
     name: "",
     title: "",
@@ -42,12 +42,24 @@ const CreateCampaign = () => {
     toast.success(message, {
       position: toast.POSITION.BOTTOM_RIGHT,
       autoClose: 5000,
+      delay: 2000,
     });
+  };
+
+  const phraseError = (error) => {
+    const serializedError = serializeError(error);
+    const jsonError = { serializedError };
+    const lines = jsonError.serializedError.message.split("\n");
+    console.log(lines.at(-1));
+    const e = JSON.parse(lines.at(-1)).reason;
+    return e;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (address === undefined) {
+    if (checkChain()) {
+      errorNotification("Please switch to Mumbai Testnet");
+    } else if (address === undefined) {
       errorNotification("Please connect your Metamask Wallet");
     } else if (form.target == 0) {
       errorNotification("Target amount cannot be 0");
@@ -58,15 +70,12 @@ const CreateCampaign = () => {
           ...form,
           target: ethers.utils.parseUnits(form.target, 18),
         });
-        setIsLoading(false);
         navigate("/");
+        setIsLoading(false);
         successNotification("Transaction Successful");
       } catch (error) {
         setIsLoading(false);
-        const serializedError = serializeError(error);
-        const jsonError = { serializedError };
-        const lines = jsonError.serializedError.message.split("\n");
-        const e = JSON.parse(lines.at(-1)).reason;
+        const e = phraseError(error);
         errorNotification(e);
       }
     }

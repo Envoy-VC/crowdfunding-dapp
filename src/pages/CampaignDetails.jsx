@@ -13,8 +13,15 @@ import { calculateBarPercentage, daysLeft } from "../utils";
 const CampaignDetails = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
-  const { donate, getDonations, contract, address, getCampaign, withdraw } =
-    useStateContext();
+  const {
+    donate,
+    getDonations,
+    contract,
+    address,
+    getCampaign,
+    withdraw,
+    checkChain,
+  } = useStateContext();
 
   const [isLoading, setIsLoading] = useState(false);
   const [amount, setAmount] = useState("");
@@ -43,7 +50,9 @@ const CampaignDetails = () => {
   }, [contract, address]);
 
   const handleDonate = async () => {
-    if (address === undefined) {
+    if (checkChain()) {
+      errorNotification("Please switch to Mumbai Testnet");
+    } else if (address === undefined) {
       errorNotification("Please connect your Metamask Wallet");
     } else {
       try {

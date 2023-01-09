@@ -7,6 +7,10 @@ import {
   useContract,
   useMetamask,
   useContractWrite,
+  ChainId,
+  useNetworkMismatch,
+  useNetwork,
+  useDisconnect,
 } from "@thirdweb-dev/react";
 import { ethers } from "ethers";
 
@@ -25,33 +29,37 @@ export const StateContextProvider = ({ children }) => {
 
   const address = useAddress();
   const connect = useMetamask();
+  const disconnect = useDisconnect({ reconnectPrevious: true });
+  const [, switchNetwork] = useNetwork();
+  const isMismatched = useNetworkMismatch();
+
+  const checkChain = () => {
+    if (isMismatched) {
+      switchNetwork(ChainId.Mumbai);
+      return true;
+    } else return false;
+  };
 
   const publishCampaign = async (form) => {
-    try {
-      const metadata = {
-        owner: form.name,
-        title: form.title,
-        description: form.description,
-        category: form.category,
-        campaignImage: form.image,
-        nftImage: form.nft,
-      };
-      const uri = await upload({ data: [metadata] });
-      const startAt = new Date(form.startAt).getTime();
-      console.log(startAt);
-      const endAt = new Date(form.deadline).getTime();
-      const data = await createCampaign([
-        address,
-        form.target,
-        Math.floor(startAt / 1000),
-        Math.floor(endAt / 1000),
-        uri[0],
-      ]);
-
-      console.log("contract call success", data);
-    } catch (error) {
-      console.log("contract call failure", error);
-    }
+    const metadata = {
+      owner: form.name,
+      title: form.title,
+      description: form.description,
+      category: form.category,
+      campaignImage: form.image,
+      nftImage: form.nft,
+    };
+    const uri = await upload({ data: [metadata] });
+    const startAt = new Date(form.startAt).getTime();
+    const endAt = new Date(form.deadline).getTime();
+    const data = await createCampaign([
+      address,
+      form.target,
+      Math.floor(startAt / 1000),
+      Math.floor(endAt / 1000),
+      uri[0],
+    ]);
+    return data;
   };
 
   const generateNftUri = async (amount, pId) => {
@@ -120,6 +128,7 @@ export const StateContextProvider = ({ children }) => {
   };
 
   const withdraw = async (pId) => {
+    checkChain();
     const data = await contract.call("withdraw", pId);
     return data;
   };
@@ -169,6 +178,7 @@ export const StateContextProvider = ({ children }) => {
         address,
         contract,
         connect,
+        disconnect,
         createCampaign: publishCampaign,
         getCampaigns,
         getUserCampaigns,
@@ -177,6 +187,7 @@ export const StateContextProvider = ({ children }) => {
         getCampaign,
         generateNftUri,
         withdraw,
+        checkChain,
       }}
     >
       {children}

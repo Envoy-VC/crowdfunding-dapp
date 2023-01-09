@@ -34,12 +34,6 @@ export const navlinks = [
     imgUrl: faq,
     link: "/faq",
   },
-  {
-    name: "Logout",
-    imgUrl: logout,
-    link: "/",
-    disabled: true,
-  },
 ];
 
 export const faqs = [
