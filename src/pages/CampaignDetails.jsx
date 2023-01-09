@@ -71,10 +71,25 @@ const CampaignDetails = () => {
     }
   };
   const handleWithdraw = async () => {
-    setIsLoading(true);
-    await withdraw(state.pId);
-    navigate("/");
-    setIsLoading(false);
+    if (checkChain()) {
+      errorNotification("Please switch to Mumbai Testnet");
+    } else if (address === undefined) {
+      errorNotification("Please connect your Metamask Wallet");
+    } else {
+      try {
+        setIsLoading(true);
+        await withdraw(state.pId);
+        navigate("/");
+        setIsLoading(false);
+      } catch (error) {
+        setIsLoading(false);
+        const serializedError = serializeError(error);
+        const jsonError = { serializedError };
+        const lines = jsonError.serializedError.message.split("\n");
+        const e = JSON.parse(lines.at(-1)).reason;
+        errorNotification(e);
+      }
+    }
   };
 
   return (
