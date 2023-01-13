@@ -135,9 +135,7 @@ export const StateContextProvider = ({ children }) => {
 
   const getCampaign = async (pId) => {
     const campaign = await contract.call("campaigns", pId);
-    console.log(campaign);
     const _metadata = await storage.downloadJSON(campaign.metadata);
-    console.log(_metadata);
     const parsedCampaign = {
       ownerAddress: campaign.owner,
       owner: _metadata.owner,
