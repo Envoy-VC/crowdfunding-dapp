@@ -172,15 +172,20 @@ const CampaignDetails = () => {
 
             <div className="mt-[20px] flex flex-col gap-4">
               {donators.length > 0 ? (
-                <ol className="md:flex md:flex-wrap -mx-4">
+                <div className="flex flex-col">
                   {donators.map((item, index) => (
-                    <li key={index} className="md:w-1/3 px-4 mb-6 md:mb-0">
-                      <div className="font-bold mb-2 text-white mt-2">
-                        {item.donator} {item.donation} MATIC
+                    <div key={index} className="my-4 md:my-0">
+                      <div className="bg-[#2c2f32] rounded-lg p-4 my-1">
+                        <h3 className="text-lg font-medium text-[#ccd4e0]">
+                          {item.donator}
+                        </h3>
+                        <div className="text-[#aebed6]">
+                          Amount Donated: {item.donation}
+                        </div>
                       </div>
-                    </li>
+                    </div>
                   ))}
-                </ol>
+                </div>
               ) : (
                 <p className="font-epilogue font-normal text-[16px] text-[#808191] leading-[26px] text-justify">
                   No donators yet. Be the first one!
